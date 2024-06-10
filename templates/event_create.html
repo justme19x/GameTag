@@ -1,0 +1,50 @@
+{% extends "base.html" %} 
+{% block title %}Create your event{% endblock %} 
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card mt-5">
+                    <div class="card-header">
+                        <h3 class="card-title">Add Event</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="/events/create_event/">
+                            <div class="mb-3">
+                                {{ form.name_event.label(class="form-label") }}
+                                {{ form.name_event(class="form-control", placeholder="Enter event name") }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.descriere_event.label(class="form-label") }}
+                                {{ form.descriere_event(class="form-control", rows=5, placeholder="Enter event description") }}
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.data_inceput_ev.label(class="form-label") }}
+                                    {{ form.data_inceput_ev(class="form-control") }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.data_final_ev.label(class="form-label") }}
+                                    {{ form.data_final_ev(class="form-control") }}
+                                </div>
+                            </div>
+                            
+
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3 text-left">
+                                    <a href="{{ url_for('events.search_for_event') }}" class="btn btn-dark">Back</a>
+                                </div>
+                                <div class="col-md-6 mb-3 text-right">
+                                    <button type="submit" class="btn btn-dark">Submit</button>
+                                </div>
+                            </div>
+
+                            {{ form.csrf_token }}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

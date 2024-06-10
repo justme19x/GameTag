@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}
+Profiles
+{% endblock %}
+
+{% block content %}
+
+<style>
+    h1 {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    #searchInput {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    #profileList {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+    }
+
+    #profileList li {
+        margin-bottom: 10px;
+    }
+
+    #profileList li a {
+        display: block;
+        padding: 8px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        color: #333;
+        text-decoration: none;
+        transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    }
+
+    #profileList li a:hover {
+        background-color: #819cba;
+        color: #fff;
+    }
+</style>
+<div class="container">
+    <h1>Profiles</h1>
+    <input type="text" id="searchInput" placeholder="Search...">
+    <!-- facem o lista -ul- care contine profilurile pt seach => elementele ei -li- -->
+    <ul id="profileList">
+        {% for username in usernames %}
+        <!-- element al listei-->
+            <li><a href="{{ url_for('views.profiles', username=username) }}">{{ username }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+
+
+
+<!-- EXPLICATIE FUNCTIONARE JS-->
+<!-- Eveniment pt filtrarea utilizatorilor în lista ta de profiluri 
+=>se realizeaza din adaugarea unui eveniment de ascultare(doment.addEventListener) 
++ searchInput este referința către input-ul de căutare, profileList este referința către lista pt prof, profileItems este o colecție a elementelor din profiluri.
++ (search input.add)așteapta ca utilizatorul să introducă text 
++ (searchtext) proia val introdusa in input-ul de cautare si o converteste litere mari/mici
+++ for- parcurgem lista de profiluri
+++ se ia textul de la fiecare element si se transforma in litere mici
++++ (if(profileName.includes..)) daca numele de profil include (textul cautat) => display altfel none
+-->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const profileList = document.getElementById('profileList');
+        const profileItems = profileList.getElementsByTagName('li');
+
+        searchInput.addEventListener('input', function() {
+            const searchText = searchInput.value.toLowerCase();
+
+            for (let i = 0; i < profileItems.length; i++) {
+                const profileName = profileItems[i].textContent.toLowerCase();
+                if (profileName.includes(searchText)) {
+                    profileItems[i].style.display = 'block';
+                } else {
+                    profileItems[i].style.display = 'none';
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

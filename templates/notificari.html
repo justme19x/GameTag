@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}
+Notifications
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="notifications">
+                <h3>Sent requests:</h3>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cerere in cereri_trimise %}
+                            {% if cerere.data_acceptare == None %}
+                                <tr>
+                                    <td><a href="/profile/{{ get_username(cerere.id_utilizator_2) }}">{{  get_username(cerere.id_utilizator_2) }}</a></td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('notificare.deleted', username=get_username(cerere.id_utilizator_2)) }}">
+                                            <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}  
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="notifications">
+                <h3>Received requests:</h3>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cerere in cereri_primite %}
+                                {% if cerere.id_utilizator_2 == current_user.id_utilizator %}
+                                {% if cerere.data_acceptare == None %}
+                                    <tr>
+                                        <td><a href="/profile/{{ get_username(cerere.id_utilizator_1) }}">{{ get_username(cerere.id_utilizator_1) }}</a></td>
+                                        <td>
+                                            <form method="POST" action="">
+                                                <button class="btn btn-success btn-sm" formaction="{{ url_for('notificare.accept', username=get_username(cerere.id_utilizator_1)) }}" type="submit">Accept</button>
+                                                <button class="btn btn-danger btn-sm" formaction="{{ url_for('notificare.refuse', username=get_username(cerere.id_utilizator_1)) }}" type="submit">Refuse</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br>
+<br>
+<br>
+
+
+    <!-- EVENIMENTE -->
+    <div class="col-md-12">
+        <div class="notifications">
+            <h3>Event notifications:</h3>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Event details</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for notificare in evenimente_trimise %}
+                            <tr>
+                                 <td><a href="/profile/{{ get_username(notificare.id_utilizator) }}">{{ get_username(notificare.id_utilizator) }}</td></a>
+                                <td>{{ notificare.details }}</td>
+                                <td>
+                                        <form method="POST" action="">
+                                            <button class="btn btn-success btn-sm" formaction="{{ url_for('notificare.accept_request', username=get_username(notificare.id_utilizator), event_id=notificare.id_eveniment) }}" type="submit">Accept</button>
+
+                                            <button class="btn btn-danger btn-sm" formaction="{{ url_for('notificare.decline_request', username=get_username(notificare.id_utilizator), event_id=notificare.id_eveniment) }}" type="submit">Decline</button>
+                                        </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

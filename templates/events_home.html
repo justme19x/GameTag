@@ -1,0 +1,118 @@
+{% extends "base.html" %} 
+{% block title %}Events{% endblock %} 
+{% block content %}
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  th {
+    background-color: #f2f2f2;
+  }
+  .button-container {
+    margin-top: 20px;
+  }
+  .button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  .button:hover {
+    background-color: #45a049;
+  }
+  #event-list {
+    max-height: 300px; 
+    overflow-y: auto;
+  }
+  #event-list-container {
+    max-height: 400px; 
+    overflow-y: auto;
+  }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<body>
+  <div class="container mt-4">
+    <h2 class="text-center mb-4">My Events</h2>
+    <div id="event-list-container">
+      <table class="table table-bordered">
+        <thead class="thead-light">
+          <tr>
+            <th class="text-center">Id event</th>
+            <th class="text-center">Name</th>
+            <th class="text-center">Date</th>
+            <th class="text-center">Created by</th>
+            <th class="text-center">Type</th>
+            <th class="text-center">Tags</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="event-list">
+          {% for event_info in evenimente_info %}
+          <tr>
+            <td class="text-center">{{ event_info.id_Eveniment }}</td>
+            <td class="text-center">{{ event_info.nume_eveniment }}</td>
+            <td class="text-center">{{ event_info.data_inceput_ev }}</td>
+            <td class="text-center">{{ Utilizator.query.get(event_info.created_by).username }}</td>
+            <td class="text-center">{{ event_info.type_event }}</td>
+            <td class="text-center">{{ event_info.tags }}</td>
+            <td class="text-center">
+              <div class="btn-group d-flex" role="group" aria-label="Event actions">
+                <button type="button" class="btn btn-info flex-fill" data-toggle="popover" data-trigger="hover" title="Event details" data-content="{{ event_info.descriere }}">
+                  <i class="bi bi-info-circle"></i>
+                </button>
+                {% if event_info.created_by == current_user.id_utilizator %}
+                <form class="flex-fill mx-1" action="{{ url_for('events.delete_event', event_id=event_info.id_Eveniment) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this event?')">
+                  <button type="submit" class="btn btn-danger w-100">Delete</button>
+                </form>
+                <form class="flex-fill mx-1" action="{{ url_for('events.edit_event', event_id=event_info.id_Eveniment) }}">
+                  <button type="submit" class="btn btn-secondary w-100">Edit</button>
+                </form>
+                <form class="flex-fill mx-1" action="{{ url_for('events.edit_participants', event_id=event_info.id_Eveniment) }}">
+                  <button type="submit" class="btn btn-secondary w-100">Participants</button>
+                </form>
+                {% else %}
+                <form class="flex-fill mx-1" action="{{ url_for('events.delete_event', event_id=event_info.id_Eveniment) }}" method="post" onsubmit="return confirm('Are you sure you want to leave this event?')">
+                  <button type="submit" class="btn btn-danger w-100">Leave</button>
+                </form>
+                <form class="flex-fill mx-1" action="{{ url_for('events.view_event_participants', event_id=event_info.id_Eveniment) }}">
+                  <button type="submit" class="btn btn-secondary w-100">View Participants</button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <a href="{{ url_for('views.profile', id_utilizator=current_user.id_utilizator) }}" class="btn btn-dark btn-block">Back</a>
+      </div>
+      <div class="col-md-6 text-right">
+        <a href="/events/search_for_event/" class="btn btn-dark btn-block">Find events</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function(){
+      $('[data-toggle="popover"]').popover();
+    });
+  </script>
+</body>
+{% endblock %}

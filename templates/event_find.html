@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% block title %}Search for Events{% endblock %}
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<style>
+    /* Stiluri pt container */
+    .container-afisare {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Stiluri pt card */
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-color: #343a40;
+        border-bottom: none;
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+    }
+
+    .card-title {
+        color: #ffffff;
+        font-size: 1.5rem;
+    }
+
+    .card-body {
+        background-color: #f8f9fa;
+    }
+
+    .form-control,
+    .btn {
+        border-radius: 10px;
+    }
+
+    #filter-section {
+        display: none;
+    }
+
+    /* Stiluri pentru pt de evenimente */
+    .event-list {
+        margin-top: 20px;
+    }
+
+    .event-item {
+        background-color: #f8f9fa;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .event-item h4 {
+        margin-bottom: 10px;
+        color: #333;
+        font-size: 1.2rem;
+    }
+
+    .event-item p {
+        margin-bottom: 5px;
+        font-size: 1rem;
+    }
+
+    .event-item p strong {
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .event-item p strong.Type {
+        color: #28a745;
+    }
+</style>
+
+<div class="container-afisare">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card mt-5">
+                <div class="card-header">
+                    <h3 class="card-title">Search for events</h3>
+                </div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input type="text" id="name" class="form-control" placeholder="Search by name...">
+                        <div class="input-group-append">
+                            <button id="toggle-filter" class="btn btn-dark" type="button">
+                                <i class="bi bi-three-dots"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="filter-section" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="created-by" class="form-label">Created by:</label>
+                                <input type="text" id="created-by" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="date-event" class="form-label">Date:</label>
+                                <input type="date" id="date-event" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="tags" class="form-label">Tags:</label>
+                                <input type="text" id="tags" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Type: </label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="System" id="type-system" checked>
+                                    <label class="form-check-label" for="type-system">
+                                        System
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="User" id="type-user" checked>
+                                    <label class="form-check-label" for="type-user">
+                                        User
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="Community" id="type-community" checked>
+                                    <label class="form-check-label" for="type-community">
+                                        Community
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a href="{{ url_for('events.home_events', id_utilizator=current_user.id_utilizator) }}" class="btn btn-dark btn-block">Back</a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="/events/create_event" class="btn btn-dark btn-block float-right">Create your event</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Container pentru lista de evenimente -->
+<div class="container-afisare mt-5">
+    <h2 class="text-center mb-4">Events</h2>
+    <div class="row justify-content-center" id="eventList">
+        {% for event in events %}
+            {% if not check_participation(event.id_Eveniment) %}
+                <li class="event-item list-group-item">
+                    <h4>{{ event.nume_eveniment }}</h4>
+                    <p><strong>Created by:</strong> {{ Utilizator.query.get(event.created_by).username }}</p>
+                    <p><strong>Start date:</strong> {{ event.data_inceput_ev }}</p>
+                    <p><strong>End date:</strong> {{ event.data_final_ev }}</p>
+                    <p><strong>Tags:</strong> {{ event.tags }}</p>
+                    <p><strong>Type:</strong> {{ event.type_event }}</p>
+                    <!-- Butoane -->
+                    <form action="{{ url_for('events.event_participate') }}" method="POST" style="display: inline-block; margin-right: 10px;">
+                        <input type="hidden" name="id_eveniment" value="{{ event.id_Eveniment }}">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </form>
+                    <form action="" method="GET" style="display: inline-block;">
+                        <button type="button" class="btn btn-info" data-toggle="popover" data-trigger="focus" title="Event details" data-content="{{ event.descriere }}">Details</button>
+                    </form>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    document.getElementById('toggle-filter').addEventListener('click', function() {
+        var filterSection = document.getElementById('filter-section');
+        if (filterSection.style.display === 'none') {
+            filterSection.style.display = 'block';
+        } else {
+            filterSection.style.display = 'none';
+        }
+    });
+</script>
+
+<script>
+    window.addEventListener('popstate', function() {
+        window.history.back();
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameInput = document.getElementById('name');
+        const createdByInput = document.getElementById('created-by');
+        const dateInput = document.getElementById('date-event');
+        const tagsInput = document.getElementById('tags');
+        const typeSystemInput = document.getElementById('type-system');
+        const typeUserInput = document.getElementById('type-user');
+        const typeCommunityInput = document.getElementById('type-community');
+        const eventList = document.getElementById('eventList');
+        const eventItems = eventList.getElementsByClassName('event-item');
+        const allEvents = Array.from(eventItems); 
+        
+        function filterEvents() {
+            const nameText = nameInput.value.trim().toLowerCase();
+            const createdByText = createdByInput.value.trim().toLowerCase();
+            const tagsText = tagsInput.value.trim().toLowerCase();
+            const typeSystemChecked = typeSystemInput.checked;
+            const typeUserChecked = typeUserInput.checked;
+            const typeCommunityChecked = typeCommunityInput.checked;
+            const dateValue = dateInput.value;
+
+            allEvents.forEach(eventItem => {
+                const eventName = eventItem.querySelector('h4').textContent.toLowerCase();
+                const eventCreatedBy = eventItem.querySelector('p:nth-of-type(1)').textContent.toLowerCase();
+                const eventTags = eventItem.querySelector('p:nth-of-type(4)').textContent.toLowerCase();
+                const eventType = eventItem.querySelector('p:nth-of-type(5)').textContent.toLowerCase();
+                
+                const eventStartDateString = eventItem.querySelector('p:nth-of-type(2)').textContent.trim().substring(12);
+                const eventEndDateString = eventItem.querySelector('p:nth-of-type(3)').textContent.trim().substring(10);
+                const eventStartDate = new Date(eventStartDateString);
+                const eventEndDate = new Date(eventEndDateString);
+                const selectedDate = dateValue ? new Date(dateValue) : null;
+                const dateInRange = selectedDate ? (selectedDate >= eventStartDate && selectedDate <= eventEndDate) : true;
+
+                const nameMatch = nameText ? eventName.includes(nameText) : true;
+                const createdByMatch = createdByText ? eventCreatedBy.includes(createdByText) : true;
+                const tagsMatch = tagsText ? eventTags.includes(tagsText) : true;
+                const typeMatch = (typeSystemChecked && eventType.includes('system')) ||
+                                (typeUserChecked && eventType.includes('user')) ||
+                                (typeCommunityChecked && eventType.includes('community'));
+
+                // Verifică toate filtrele simultan
+                if (nameMatch && createdByMatch && tagsMatch && typeMatch && dateInRange) {
+                    eventItem.style.display = 'block';
+                } else {
+                    eventItem.style.display = 'none';
+                }
+            });
+        }
+
+        nameInput.addEventListener('input', filterEvents);
+        createdByInput.addEventListener('input', filterEvents);
+        tagsInput.addEventListener('input', filterEvents);
+        typeSystemInput.addEventListener('change', filterEvents);
+        typeUserInput.addEventListener('change', filterEvents);
+        typeCommunityInput.addEventListener('change', filterEvents);
+        dateInput.addEventListener('change', filterEvents);
+
+        document.querySelectorAll('input[type="text"]').forEach(input => {
+            input.addEventListener('keyup', function() {
+                filterEvents();
+            });
+        });
+    });
+</script>
+
+
+<script>
+    $(document).ready(function(){
+        $('[data-toggle="popover"]').popover();
+    });
+</script>
+{% endblock %}

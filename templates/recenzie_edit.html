@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Edit Review{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Review</title>
+    <style>
+        .btn-container {
+            display: flex; /* butoane pe aceeași linie */
+            gap: 5px; /* spațiere butoane */
+        }
+
+        .small-btn {
+            width: 35px; 
+            height: 35px; 
+        }
+
+        .small-btn img {
+            max-width: 100%; 
+            max-height: 100%; /* înălțime imagine la 100% din buton */
+        }
+    </style>
+</head>
+<body>
+    <h3>Edit review for: {{ game.nume_joc }}</h3>
+    <form method="POST" onsubmit="return validateForm()">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.text_recenzie.label }}<br>
+            {{ form.text_recenzie(rows=10, cols=50, value=review.text_recenzie if review else '') }}
+            {% for error in form.text_recenzie.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <br>
+        <!-- butoane de like și dislike de pus img -->
+        <div class="btn-container">
+            <button type="button" onclick="toggleLike()" class="small-btn" id="likeBtn">
+                <img src="{{ url_for('static', filename='poze/like-dislike/try.png') }}" alt="Like" id="likeImg">
+            </button>
+            <button type="button" onclick="toggleDislike()" class="small-btn" id="dislikeBtn">
+                <img src="{{ url_for('static', filename='poze/like-dislike/dislike.png') }}" alt="Dislike" id="dislikeImg">
+            </button>
+        </div>
+        <input type="hidden" name="like_dislike" id="likeDislikeField" value="{{ review.Nota if review else '' }}">
+        <br>
+        <button type="submit">Save Changes</button>
+    </form>
+</body>
+</html>
+
+<script>
+function toggleLike() {
+    var likeBtn = document.getElementById('likeBtn');
+    var dislikeBtn = document.getElementById('dislikeBtn');
+    likeBtn.style.backgroundColor = 'green';
+    dislikeBtn.style.backgroundColor = '';
+    document.getElementById('likeDislikeField').value = '1'; // valoarea 1 pentru like
+}
+
+function toggleDislike() {
+    var likeBtn = document.getElementById('likeBtn');
+    var dislikeBtn = document.getElementById('dislikeBtn');
+    dislikeBtn.style.backgroundColor = 'red';
+    likeBtn.style.backgroundColor = '';
+    document.getElementById('likeDislikeField').value = '0'; // valoarea 0 pentru dislike
+}
+
+function validateForm() {
+    var likeSelected = document.getElementById('likeBtn').style.backgroundColor === 'green';
+    var dislikeSelected = document.getElementById('dislikeBtn').style.backgroundColor === 'red';
+
+    if (!likeSelected && !dislikeSelected) {
+        alert('Please select either like or dislike.');
+        return false; // OBLIGĂ UTILIZATORUL SĂ ALEAGĂ like SAU dislike
+    }
+    return true; 
+}
+
+// Funcție setarea butonului selectat
+function setInitialSelection() {
+    var likeDislikeValue = document.getElementById('likeDislikeField').value;
+    if (likeDislikeValue === '1') {
+        toggleLike();
+    } else if (likeDislikeValue === '0') {
+        toggleDislike();
+    }
+}
+
+
+window.onload = setInitialSelection;
+</script>
+
+{% endblock %}

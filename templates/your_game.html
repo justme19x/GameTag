@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}
+Your Games
+{% endblock %}
+{% block content %}
+
+
+<script src="/static/jquery/dist/jquery.min.js"></script> 
+<script src="{{ url_for('static', filename='js/yourgames_checkbox.js') }}"></script>
+
+<style>
+    /* Stilurile personalizate */
+    .friend-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+        margin-bottom: 20px; /* Spațiu între carduri */
+    }
+
+    .friend-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .game-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .game-details {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .game-img {
+        max-height: 200px;
+        object-fit: cover;
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+    }
+</style>
+
+<div class="container">
+    <div class="input-group">
+        <div class="input-group mb-3">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search for your game" aria-label="Search" aria-describedby="btnGroupAddon">
+        </div>
+    </div>
+    <div class="mt-4" id="gameList">
+        {% for game in games %}
+        <div class="card friend-card">
+            <div class="card-body">
+                <h5 class="card-title game-title">{{ game.joc.nume_joc }}</h5>
+                <br>
+                <div class="custom-control custom-switch">
+                {% if game.play == 1 %}
+                    <input type="checkbox" class="custom-control-input" id="playingNowToggle{{ game.joc.id_Joc }}" checked>
+                    <label class="custom-control-label" for="playingNowToggle{{ game.joc.id_Joc }}">Playing now</label>
+                </div>
+                {% else %}
+                <input type="checkbox" class="custom-control-input" id="playingNowToggle{{ game.joc.id_Joc }}">
+                <label class="custom-control-label" for="playingNowToggle{{ game.joc.id_Joc }}">Playing now</label>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const gameList = document.getElementById('gameList');
+        const gameItems = gameList.getElementsByClassName('card');
+
+        searchInput.addEventListener('input', function() {
+            const searchText = searchInput.value.toLowerCase();
+
+            for (let i = 0; i < gameItems.length; i++) {
+                const gameTitle = gameItems[i].getElementsByClassName('game-title')[0].textContent.toLowerCase();
+                if (gameTitle.includes(searchText)) {
+                    gameItems[i].style.display = 'block';
+                } else {
+                    gameItems[i].style.display = 'none';
+                }
+            }
+        });
+    });
+
+    
+</script>
+{% endblock %}

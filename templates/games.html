@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}
+Games
+{% endblock %}
+{% block content %}
+<script src="/static/jquery/dist/jquery.min.js"></script> 
+
+<style>
+    /* Stilurile personalizate */
+    .friend-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+    }
+
+    .friend-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .game-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .game-details {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .game-img {
+        max-height: 200px;
+        object-fit: cover;
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+    }
+
+    .button-fixed-size {
+        width: 90px;
+        height: 40px;
+    }
+</style>
+{% set joc_in_biblioteca = joc_in_biblioteca %}
+<div class="container">
+    <h2 class="mt-5 text-center">Games</h2></br>
+    <div class="input-group">
+        <div class="input-group mb-3">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search for your game" aria-label="Search" aria-describedby="btnGroupAddon">
+        </div>
+    </div></br>
+    <div class="row mt-4" id="gameList">
+        {% for joc in jocuri %}
+        <div class="col-md-4 mb-3 gameItem">
+            <div class="card friend-card">
+                <img src="{{ joc.poza }}" alt="{{ joc.nume_joc }}" class="game-img">
+                <div class="card-body">
+                    <h5 class="card-title game-title">{{ joc.nume_joc }}</h5>
+                    <p class="card-text game-details">{{ joc.dezvoltator }}</p>
+                    <br>
+                    <div class="d-flex justify-content-between align-items-center">
+                        {% if not joc_in_biblioteca(joc.id_Joc) %}
+                        <form action="/info_games/{{ joc.id_Joc }}" method="post">
+                            <input type="hidden" name="id_joc" value="{{ joc.id_Joc }}">
+                            <button type="submit" class="btn btn-outline-info button-fixed-size">Info</button>
+                        </form>
+
+                        <form action="/add_game_to_library/{{ joc.id_Joc }}" method="post">
+                            <button type="submit" class="btn btn-dark button-fixed-size">Add games</button>
+                        </form>
+
+                        {% else %}
+                        <button type="button" class="btn btn-danger btn-sm button-fixed-size delete-game" data-toggle="modal" data-target="#deleteGame" data-name="{{ joc.nume_joc }}" data-id="{{ joc.id_Joc }}">DELETE</button>
+
+                        <form action="/profile/games/join/{{ joc.id_Joc }}" method="post">
+                            <input type="hidden" name="id_joc" value="{{ joc.id_Joc }}">
+                            <button type="submit" class="btn btn-success button-fixed-size">JOIN</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const gameList = document.getElementById('gameList');
+        const gameItems = gameList.getElementsByClassName('gameItem');
+
+        searchInput.addEventListener('input', function() {
+            const searchText = searchInput.value.toLowerCase();
+
+            for (let i = 0; i < gameItems.length; i++) {
+                const gameTitle = gameItems[i].getElementsByClassName('game-title')[0].textContent.toLowerCase();
+                if (gameTitle.includes(searchText)) {
+                    gameItems[i].style.display = 'block';
+                } else {
+                    gameItems[i].style.display = 'none';
+                }
+            }
+        });
+    });
+
+    // Event listener for delete game button click
+    $('.delete-game').click(function() {
+        const name = $(this).data('name');
+        const id = $(this).data('id');
+        $('#deleteGame .modal-body').text('Are you sure you want to delete ' + name + '?');
+
+        // Deschide modalul
+        $('#deleteGame').data('id', id);
+        $('#deleteGame').modal('show');
+
+        // Asociere evenimentului click pentru butonul de confirmare
+        $('#confirmDeletegame').click(function() {
+            const id = $('#deleteGame').data('id');
+            // solicitare POST pt backend - ștergere utilizatorului
+            $.ajax({
+                url: '/profile/games/delete/' + id,
+                method: 'POST',
+                data: { id: id },
+                success: function(response) {
+                    // daca reuseste sa hide la modal si sa dee reload
+                    $('#deleteGame').modal('hide');
+                    window.location.reload();
+                },
+            });
+        });
+    });
+</script>
+
+<div class="modal fade" id="deleteGame" tabindex="-1" role="dialog" aria-labelledby="deleteGameLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteGameLabel">Confirm deletion game</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this game?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="confirmDeletegame">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

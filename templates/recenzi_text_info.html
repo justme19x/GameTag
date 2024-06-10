@@ -1,0 +1,119 @@
+<div class="progress" style="--like-percentage: {{ like_percentage }}%; --dislike-percentage: {{ dislike_percentage }}%;">
+    <div class="progress-bar progress-bar bg-success progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">{{ total_likes }}({{ like_percentage }}%)
+    </div>
+    {% if total_likes > 0 %}
+    <div class="progress-bar progress-bar bg-danger progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">{{ total_dislikes }}({{ dislike_percentage }}%)</div>
+    {% else %}
+    <div class="progress-bar progress-bar progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+        No reviews yet
+    </div>
+    {% endif %}
+</div>
+<br>
+<br>
+<div class="reviews">
+    <div class="positive-reviews">
+        <h3>Positive Reviews</h3>
+        <div class="review-container">
+            {% for recenzie, user_id in recenzi_pozitive_paginate %}
+            <div class="card">
+                <div class="card-header">User: {{ user_id }}</div>
+                <div class="card-body">Review: {{ recenzie.text_recenzie }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="negative-reviews">
+        <h3>Negative Reviews</h3>
+        <div class="review-container">
+            {% for recenzie, user_id in recenzi_negative_paginate %}
+            <div class="card">
+                <div class="card-header">User: {{ user_id }}</div>
+                <div class="card-body">Review: {{ recenzie.text_recenzie }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="pagination">
+    {% if page > 1 %}
+    <a href="{{ url_for('games.view_joc_content', id_joc=joc.id_Joc, page=page-1) }}" class="btn btn-primary">Previous</a>
+    {% endif %}
+    {% for p in range(1, total_pages + 1) %}
+    <a href="{{ url_for('games.view_joc_content', id_joc=joc.id_Joc, page=p) }}" class="btn btn-primary {% if page == p %}active{% endif %}">{{ p }}</a>
+    {% endfor %}
+    {% if page < total_pages %}
+    <a href="{{ url_for('games.view_joc_content', id_joc=joc.id_Joc, page=page+1) }}" class="btn btn-primary">Next</a>
+    {% endif %}
+</div>
+</div>
+
+<style>
+.progress-bar.bg-success {
+    width: var(--like-percentage);
+}
+
+.progress-bar.bg-danger {
+    width: calc(100% - var(--like-percentage));
+}
+
+.no-reviews {
+    background-color: blue;
+}
+
+.reviews {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 auto;
+    width: 90%;
+}
+
+.positive-reviews, .negative-reviews {
+    width: 48%;
+}
+
+.review-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.card {
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #f1f1f1;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    font-weight: bold;
+}
+
+.card-body {
+    padding: 10px;
+}
+
+h3 {
+    text-align: center;
+    color: #333;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination .btn {
+    margin: 0 5px;
+}
+
+.pagination .btn.active {
+    background-color: #007bff;
+    color: white;
+    pointer-events: none;
+}
+</style>

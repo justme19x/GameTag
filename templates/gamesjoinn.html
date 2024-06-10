@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ game.nume_joc }}{% endblock %}
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}
+            <br>
+             <a href="/profile/games/review_edit/{{ game_id }}" class="btn">You can edit your review here.</a>
+        </div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+<h1 style="margin-left:0in;text-align:center;"><span style="font-family:''Times New Roman'', Times, serif;font-size:22px;"><strong>{{ game.nume_joc }}</strong></span></h1>
+<br>
+<button id="toggleChatButton" class="toggle-chat-button">Chat</button>
+<div id="chatContainer" class="hidden">
+    {% if chat %}
+        {{ chat|safe }}
+    {% else %}
+    <br>
+        <p class="error-message">The administrator has not created a chat for this game yet.</p>
+    {% endif %}
+</div>
+<br><br>
+    
+{% include 'recenzi_bara_text.html' %}
+
+<br><br>
+<a href="/profile/games/review/{{ game_id }}" class="btn btn-primary">Add review</a>
+<br>
+<script>
+    var toggleChatButton = document.getElementById("toggleChatButton");
+    var chatContainer = document.getElementById("chatContainer"); 
+    
+    toggleChatButton.addEventListener("click", function() {
+        var isChatHidden = chatContainer.classList.contains("hidden");
+        
+        if (isChatHidden) {
+            chatContainer.classList.remove("hidden"); 
+        } else {
+            chatContainer.classList.add("hidden"); 
+        }
+    });
+</script>
+
+<style>
+    .error-message {
+    color: red;
+    font-size: 20px; 
+    }
+    body {
+        font-family: 'Arial', sans-serif;
+    }
+    
+    .hidden {
+        display: none;
+    }
+
+    .toggle-chat-button {
+        padding: 10px 20px;
+        background-color: #f8f9fa;
+        color: #007bff;
+        border: 2px solid #007bff;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    }
+
+    .toggle-chat-button:hover {
+        background-color: #007bff;
+        color: #f8f9fa;
+        border-color: #007bff;
+    }
+</style>
+
+{% endblock %}

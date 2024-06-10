@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}
+Edit participants
+{% endblock %}
+
+{% block content %}
+{% if message %}
+<div class="alert alert-success" role="alert">
+  {{ message }}
+</div>
+{% endif %}
+
+
+
+<br>
+<div id="participants-container">
+    <h1 style="text-align: center;">Event participants for {{ event.nume_eveniment }}</h1>
+    <ul>
+        <br>
+        <input type="text" id="searchInput" placeholder="Search participants...">
+        <br><br>
+
+<!-- afisez mereu numele meu primul apoi restul sortate alfabetic -->
+        <li class="participant-info">
+            <span class="username">{{ current_user.username }}</span>
+            <span class="badge badge-primary">CREATOR</span>
+        </li>
+
+
+
+        {% for participant in participants %}
+        {% if participant.utilizator.username != current_user.username %}
+            <li class="participant-info">
+                <span class="username">{{ participant.utilizator.username }}</span> 
+
+
+                <form action="/profile/{{participant.utilizator.username}}" method="GET" class="participant-button">
+                    <button type="submit">View Profile</button>
+                </form>
+                
+
+                <form action="/delete_participant" method="POST" class="participant-button">
+                    <input type="hidden" name="event_id" value="{{ event.id_Eveniment }}">
+                    <input type="hidden" name="participant_id" value="{{ participant.utilizator.id_utilizator }}">
+                    <button type="submit">Delete participant</button>
+                </form>
+            </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+
+
+<br>
+<br>
+
+<div class="col-md-3">
+    <div class="col-md-6">
+        <a href="{{ url_for('events.home_events', id_utilizator=current_user.id_utilizator) }}" class="btn btn-dark btn-block">Back</a>
+    </div>    
+</div>
+
+<style>
+     #searchInput {
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+     }
+    #participants-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #participants-container h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    #participants-container ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    #participants-container li {
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        display: flex;
+        align-items: center; 
+    }
+
+    .participant-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between; 
+    }
+
+    .participant-button {
+        display: inline; 
+    }
+
+    .username {
+        margin-right: auto; 
+    }
+
+    .participant-button:not(:first-child) {
+        margin-left: 10px; 
+    }
+</style>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById("searchInput");
+        const participants = document.querySelectorAll(".username");
+
+        searchInput.addEventListener("keyup", function(event) {
+            const searchText = event.target.value.toLowerCase();
+            participants.forEach(function(participant) {
+                const username = participant.textContent.toLowerCase();
+                const participantLi = participant.parentElement;
+                if (username.includes(searchText)) {
+                    participantLi.style.display = "block";
+                } else {
+                    participantLi.style.display = "none";
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

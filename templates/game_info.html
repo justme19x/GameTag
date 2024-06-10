@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ joc.nume_joc }}{% endblock %}
+{% block content %}
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+
+<style>
+    .popover {
+        max-width: 300px; 
+    }
+</style>
+
+{{ content|safe }}
+
+
+<button id="showFriendsBtn" class="btn btn-secondary">Show mutual friends who play: {{joc.nume_joc}}</button>
+
+<div id="friendsList" class="popover" style="display: none;">
+    <div class="popover-body">
+        <ul>
+            {% for utilizator in rezultat %}
+            <li><a href="{{ url_for('views.profiles', username=utilizator.username) }}" class="profile-link">{{ utilizator.username }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<br><br>
+<h2 style="font-family: 'Times New Roman', serif; font-size: 18px; margin: 0; line-height: normal;"><strong>Reviews:</strong></h2>
+{% include 'recenzi_text_info.html' %}
+<br>
+
+<br>
+
+<script>
+    $(document).ready(function(){
+        $('#showFriendsBtn').popover({
+            content: $('#friendsList').html(), 
+            html: true,
+            placement: 'right',
+            trigger: 'manual' 
+        });
+
+        $('#showFriendsBtn').click(function(){
+            $('#showFriendsBtn').popover('toggle'); 
+        });
+
+        // Ascunde butonul când se face clic în afara lui
+        $(document).click(function(event) { 
+            if(!$(event.target).closest('#showFriendsBtn').length) {
+                $('#showFriendsBtn').popover('hide');
+            }        
+        });
+    });
+</script>
+{% endblock %}

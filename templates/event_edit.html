@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+<div class="container">
+    <h2>Edit event data</h2>
+    <form method="POST" action="{{ url_for('events.edit_event', event_id=event.id_Eveniment) }}">
+        <div class="form-group">
+            <label class="form-control-label">Name for event</label>
+            <input type="text" class="form-control" value="{{ event.nume_eveniment }}" readonly>
+        </div>
+        <div class="form-group">
+            {{ form.descriere_event.label(class="form-control-label") }}
+            {{ form.descriere_event(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.data_inceput_ev.label(class="form-control-label") }}
+            {{ form.data_inceput_ev(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.data_final_ev.label(class="form-control-label") }}
+            {{ form.data_final_ev(class="form-control") }}
+        </div>
+        <br>
+        
+
+        <div class="row">
+            <div class="col-md-6 mb-3 text-left">
+                <a href="{{ url_for('events.home_events', id_utilizator=current_user.id_utilizator) }}" class="btn btn-dark btn-block">Back</a>
+            </div>     
+            <div class="col-md-6 mb-3 text-right">
+                <button type="submit" class="btn btn-dark btn-block">Submit</button>
+            </div>
+            {{ form.csrf_token }}
+        </div>
+    </form>
+</div>
+
+
+
+
+
+{% endblock %}

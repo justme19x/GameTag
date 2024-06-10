@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}
+Friends
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .friend-card {
+        border-radius: 15px;
+        box-shadow: none;
+        transition: transform 0.3s;
+    }
+
+    .friend-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+
+<div class="container">
+    <h2 class="mt-5">Friends list</h2>
+    <div class="input-group mb-3">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search for your friend" aria-label="Search" aria-describedby="friends">
+    </div>
+    <div class="row mt-3">
+        {% for friend in friends %}
+            {% if friend.id_utilizator_1 == current_user.id_utilizator %}
+                <div class="col-md-4 mb-3 friend-card friend-item">
+                    <div class="card">
+                        <div class="card-body text-center"> 
+                            <p class="card-text"><a href="/profile/{{ get_username(friend.id_utilizator_2) }}">{{ get_username(friend.id_utilizator_2) }}</a></p>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="mb-0">Added: {{ friend.data_cerere }}</p>
+                                </div>
+                                <button type="button" class="btn btn-outline-danger btn-sm delete-friend" data-toggle="modal" data-target="#deleteFriend" data-username="{{ get_username(friend.id_utilizator_2) }}">Delete friend</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-md-4 mb-3 friend-card friend-item">
+                    <div class="card">
+                        <div class="card-body text-center"> 
+                            <p class="card-text"><a href="/profile/{{ get_username(friend.id_utilizator_1) }}">{{ get_username(friend.id_utilizator_1) }}</a></p>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="mb-0">Added: {{ friend.data_cerere }}</p>
+                                </div>
+                                <button type="button" class="btn btn-outline-danger btn-sm delete-friend" data-toggle="modal" data-target="#deleteFriend" data-username="{{ get_username(friend.id_utilizator_1) }}">Delete friend</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        const searchInput = $('#searchInput');
+        const friendItems = $('.friend-item');
+
+        searchInput.on('input', function() {
+            const searchText = searchInput.val().toLowerCase();
+
+            friendItems.each(function() {
+                const friendName = $(this).find('.card-text').text().toLowerCase();
+                if (friendName.includes(searchText)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+        // Event listener for delete friend button click
+        $('.delete-friend').click(function() {
+            const username = $(this).data('username');
+            $('#deleteFriend .modal-body').text('Are you sure you want to delete ' + username + '?');
+            $('#deleteFriend').data('username', username);
+        });
+
+        // Listener for confirm delete friend button
+        $('#confirmDeletefriend').click(function() {
+            const username = $('#deleteFriend').data('username');
+            $.ajax({
+                url: '/friends/delete/' + username,
+                method: 'POST',
+                data: { username: username },
+                success: function(response) {
+                    $('#deleteFriend').modal('hide');
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                    alert('Failed to delete friend: ' + error);
+                }
+            });
+        });
+
+    });
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteFriend" tabindex="-1" role="dialog" aria-labelledby="deleteFriendLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteFriendLabel">Confirm deletion friend</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this friend?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="confirmDeletefriend">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
